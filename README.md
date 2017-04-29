@@ -1,6 +1,8 @@
 # knight
 investigating the board coverage by a chess knight
 
+Use knight.swift - the command line program.  Playground works awfully slow on any non-trivial board.  All in all it works awfully slow on any square board of size 6x6+.  Rectangular boards for some reason are processed faster.  
+
 ```
 ➜ swift knight.swift 3 4
  1  4  7 10
