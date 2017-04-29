@@ -2,7 +2,34 @@
 Investigating the board coverage by a chess knight.  A board coverage means that a knight has to start at (0,0) (top right corner) and visit each cell exactly once, forming a (Hamiltonian) path.  Program outputs a board, with each cell marked by a position index of that cell in the knight's path.
 
 ## usage
-Use `knight.swift` - the command line program.  It takes the dimensions of the board as params. Playground works awfully slow on any non-trivial board, and is not up to date.  All in all program works awfully slow on any square board of size 6x6+.  Rectangular boards for some reason are processed faster.  Looking for ways to optimize it, but without using any heuristics - just plain DFS in iterative manner with backtracking.  
+Either compile directly:
+
+```
+swiftc knight.playground/Sources/knight.swift main.swift -o knight
+```
+
+or run 
+
+```
+./snapshot-test.sh
+```
+
+it will create an executable `knight`, which you can then pass the board dimensions (can be rectangular). f.e.:
+
+```
+./knight 5 5
+ 1  6 15 10 21
+14  9 20  5 16
+19  2  7 22 11
+ 8 13 24 17  4
+25 18  3 12 23
+```
+
+
+You can use playground, but it works awfully slow on any non-trivial board.  
+All in all program works awfully slow on any square board of size 6x6+.  
+Rectangular boards for some reason are processed faster.  Looking for ways to optimize it, 
+but without using any heuristics - just plain DFS in iterative manner with backtracking.  
 
 ## DFS with backtracking vs. bruteforce search
 DFS (5^(M*N)) is obviously much faster than any bruteforce search (just checking each permutation of cells (M*N)!), but still is expnential and thus very slow.  But obvioiusly this is Hamiltonian path, humanity does not know a polynomial time algo to solve it (otherwise P==NP). 
