@@ -102,3 +102,22 @@ public class Board {
         return path.map { $0.coordinate }
     }
 }
+
+import Foundation
+
+public func output(path: [Coordinate], lines M: Int, columns N: Int) {
+    guard path.count > 0 else {
+        print("No path")
+        return
+    }
+    
+    var D: [[Int]] = Array(repeating:Array(repeating:0, count:N), count: M)
+    for (i, c) in path.enumerated() {
+        D[c.x][c.y] = i+1
+    }
+    
+    for i in 0..<D.count {
+        let s = D[i].map { String(format: "%2d", $0) }.joined(separator: " ")
+        print("\(s)")
+    }
+}
