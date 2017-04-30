@@ -31,7 +31,7 @@ func main() throws {
 	}
 
 	let board = Board(lines: M, columns: N)
-	let path = board.path(from: Coordinate(x: 0, y: 0))
+	let path = board.path(from: Position(x: 0, y: 0))
 	output(path: path, lines: M, columns: N)
 }
 

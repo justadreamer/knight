@@ -1,4 +1,4 @@
-public struct Coordinate: Hashable, Equatable, CustomStringConvertible {
+public struct Position: Hashable, Equatable, CustomStringConvertible {
     var x: Int
     var y: Int
 
@@ -11,11 +11,12 @@ public struct Coordinate: Hashable, Equatable, CustomStringConvertible {
         self.y = y
     }
 
+    //TODO: better more universal hash? 
     public var hashValue: Int {
         return x * 200 + y
     }
     
-    public static func ==(lhs: Coordinate, rhs: Coordinate) -> Bool {
+    public static func ==(lhs: Position, rhs: Position) -> Bool {
         return lhs.x == rhs.x && lhs.y == rhs.y
     }
     
@@ -40,11 +41,11 @@ public class Board {
         N = n
     }
     
-    private func isWithin(c: Coordinate) -> Bool {
+    private func isWithin(c: Position) -> Bool {
         return c.x >= 0 && c.y >= 0 && c.x < M && c.y < N;
     }
     
-    private func nextMoves(from c: Coordinate) -> [Coordinate] {
+    private func nextSteps(from c: Position) -> [Position] {
         /*
          o + o + o
          + o o o +
@@ -53,59 +54,59 @@ public class Board {
          o + o + o
          */
         let jumps = [(-2,-1),(-1,-2),(-2,1),(-1,2),(1,-2),(2,-1),(1,2),(2,1)]
-        let moves = jumps.map { (x,y) -> Coordinate in
-            Coordinate((c.x + x, c.y + y)) //Coordinate(x: c.x + x, y: c.y + y)
+        let moves = jumps.map { (x,y) -> Position in
+            Position((c.x + x, c.y + y)) //Coordinate(x: c.x + x, y: c.y + y)
         }
         return moves
     }
     
-    private func nextMovesWithinTheBoard(from c: Coordinate) -> [Coordinate] {
-        let moves = nextMoves(from: c).filter { self.isWithin(c: $0) }
+    private func nextStepsWithinTheBoard(from c: Position) -> [Position] {
+        let moves = nextSteps(from: c).filter { self.isWithin(c: $0) }
         return moves
     }
     
     private struct Move {
-        var coordinate: Coordinate
-        var availableNextMoves: [Coordinate]
+        var position: Position
+        var availableNextSteps: [Position]
     }
     
-    public func path(from c: Coordinate) -> [Coordinate] {
-        var visited: Set<Coordinate> = [c]
-        let nextMoves = nextMovesWithinTheBoard(from: c)
-        var path: [Move] = [Move(coordinate:c, availableNextMoves:nextMoves)]
+    public func path(from position: Position) -> [Position] {
+        var visited: Set<Position> = [position]
+        let nextSteps = nextStepsWithinTheBoard(from: position)
+        var path: [Move] = [Move(position: position, availableNextSteps: nextSteps)]
         
         //if path.count == boardSize - awesome we have stepped at each cell once
         while path.count != boardSize && !path.isEmpty {
             let currentMove = path.popLast()! //we know that path is not empty
-            let currentCoordinate = currentMove.coordinate
-            var nextMoves = currentMove.availableNextMoves
+            let currentPosition = currentMove.position
+            var nextSteps = currentMove.availableNextSteps
             
-            if nextMoves.isEmpty { // no available next moves
-                visited.remove(currentCoordinate)
+            if nextSteps.isEmpty { // no available next moves
+                visited.remove(currentPosition)
                 //print("backtracking")
                 continue
             }
             
-            let nextCoordinate = nextMoves.popLast()! //we know nextMove is not empty
+            let nextPosition = nextSteps.popLast()! //we know nextMove is not empty
             
             //have to modify last move's next moves to not repeat
-            let modifiedLastMove = Move(coordinate: currentCoordinate, availableNextMoves: nextMoves)
+            let modifiedLastMove = Move(position: currentPosition, availableNextSteps: nextSteps)
             path.append(modifiedLastMove)
             
             //making the next move
-            visited.insert(nextCoordinate)
-            let availableNextMoves = nextMovesWithinTheBoard(from: nextCoordinate).filter { !visited.contains($0) }
-            let nextMove = Move(coordinate: nextCoordinate, availableNextMoves: availableNextMoves)
+            visited.insert(nextPosition)
+            let availableNextSteps = nextStepsWithinTheBoard(from: nextPosition).filter { !visited.contains($0) }
+            let nextMove = Move(position: nextPosition, availableNextSteps: availableNextSteps)
             path.append(nextMove)
         }
         
-        return path.map { $0.coordinate }
+        return path.map { $0.position }
     }
 }
 
 import Foundation
 
-public func output(path: [Coordinate], lines M: Int, columns N: Int) {
+public func output(path: [Position], lines M: Int, columns N: Int) {
     guard path.count > 0 else {
         print("No path")
         return
