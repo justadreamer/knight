@@ -160,8 +160,10 @@ public func output(path: [Position], lines M: Int, columns N: Int) {
         D[c.x][c.y] = i+1
     }
     
+    let alignment = Int(log10(Double(M * N))) + 1
+    let format = String (format: "%%%dd", alignment)
     for i in 0..<D.count {
-        let s = D[i].map { String(format: "%2d", $0) }.joined(separator: " ")
+        let s = D[i].map { String(format: format, $0) }.joined(separator: " ")
         print("\(s)")
     }
 }
