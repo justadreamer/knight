@@ -1,5 +1,7 @@
-# chess knight
-Investigating the board coverage by a chess knight.  A board coverage means that a knight has to start at (0,0) (top right corner) and visit each cell exactly once, forming a (Hamiltonian) path.  Program outputs a board, with each cell marked by a position index of that cell in the knight's path.
+# chess knight tour
+Finding a tour of a chess knight such that it visits each cell of the board exactly once. For now we assume the start at position (0,0) (top right corner).  This is an instance of [Hamiltonian path problem](https://en.wikipedia.org/wiki/Hamiltonian_path_problem).  
+
+The program outputs a board, with each cell marked by a position index of that cell in the knight's tour.  For now we only output a single (potentially) open tour (we don't strive to get a cycle). 
 
 ## usage
 Either compile directly:
@@ -26,13 +28,10 @@ it will create an executable `knight`, which you can then pass the board dimensi
 ```
 
 
-You can use playground, but it works awfully slow on any non-trivial board.  
-All in all program works awfully slow on any square board of size 6x6+.  
-Rectangular boards for some reason are processed faster.  Looking for ways to optimize it, 
-but without using any heuristics - just plain DFS in iterative manner with backtracking.  
+You can also use a playground.
 
 ## DFS with backtracking vs. bruteforce search
-DFS (5^(M*N)) is obviously much faster than any bruteforce search (just checking each permutation of cells (M*N)!), but still is expnential and thus very slow.  But obvioiusly this is Hamiltonian path, humanity does not know a polynomial time algo to solve it (otherwise P==NP). 
+DFS (5^(M*N)) is obviously much faster than any bruteforce search (just checking each permutation of cells (M*N)!), but still is exponential and thus very slow.  But obvioiusly this is Hamiltonian path, humanity does not know a polynomial time algo to solve it (otherwise P==NP). It is optimized using a [Warnsdorf's rule](https://en.wikipedia.org/wiki/Knight%27s_tour) heuristic: as a next step we always choose the one with the fewest number of potential next steps coming out of it (taking in account already visited cells of course).
 
 ```
 ./knight 3 4
@@ -108,3 +107,17 @@ DFS (5^(M*N)) is obviously much faster than any bruteforce search (just checking
 18 27 20 23 10  5 14
 21 24 17  4 13  8 11
 ```
+
+```
+./knight 8 8
+ 1 16 31 40  3 18 21 56
+30 39  2 17 42 55  4 19
+15 32 41 46 53 20 57 22
+38 29 48 43 58 45 54  5
+33 14 37 52 47 60 23 62
+28 49 34 59 44 63  6  9
+13 36 51 26 11  8 61 24
+50 27 12 35 64 25 10  7
+```
+
+The last one uses Warnsdorf's rule heuristic. 
