@@ -27,13 +27,13 @@ public struct Position: Hashable, Equatable, CustomStringConvertible {
     }
 }
 
-class TourComputation {
+struct TourComputation {
     private struct Move {
         var position: Position
         var availableNextSteps: [Position]
     }
 
-    weak var board: Board!
+    var board: Board
     var visited: Set<Position> = []
     private var path: [Move] = []
     
@@ -47,12 +47,12 @@ class TourComputation {
         return nextSteps.last
     }
 
-    func compute() -> [Position] {
+    mutating func compute() -> [Position] {
         //if path.count == boardSize - awesome we have stepped at each cell once
         while path.count != self.board.boardSize && !path.isEmpty {
             let currentMove = path.popLast()! //we know that path is not empty
             let currentPosition = currentMove.position
-            var nextSteps = currentMove.availableNextSteps
+            let nextSteps = currentMove.availableNextSteps
             
             guard let nextPosition = chooseNextStep(outof: nextSteps) else { // no available next steps
                 visited.remove(currentPosition)
@@ -60,19 +60,23 @@ class TourComputation {
                 continue
             }
 
-            nextSteps = nextSteps.filter { $0 != nextPosition } //remove chosen from nextSteps
-
-            //have to modify last move's next moves to not repeat
-            let modifiedLastMove = Move(position: currentPosition, availableNextSteps: nextSteps)
-            path.append(modifiedLastMove)
-            
+            remove(nextPosition: nextPosition, from: currentMove)
             makeNextMove(to: nextPosition)
         }
         
         return path.map { $0.position }
     }
     
-    func makeNextMove(to nextPosition: Position) {
+    private mutating func remove(nextPosition: Position, from currentMove:Move) {
+        let modifiedNextSteps = currentMove.availableNextSteps.filter { $0 != nextPosition } //remove chosen from nextSteps
+        
+        //have to modify last move's next moves to not repeat
+        let modifiedLastMove = Move(position: currentMove.position, availableNextSteps: modifiedNextSteps)
+        path.append(modifiedLastMove)
+
+    }
+
+    mutating func makeNextMove(to nextPosition: Position) {
         //making the next move
         visited.insert(nextPosition)
         let availableNextSteps = self.board.nextStepsWithinTheBoard(from: nextPosition).filter { !visited.contains($0) }
@@ -125,7 +129,7 @@ public class Board {
     }
     
     public func getTour(from position: Position) -> [Position] {
-        let tourComputation = TourComputation(start: position, board: self)
+        var tourComputation = TourComputation(start: position, board: self)
         return tourComputation.compute()
     }
 }
