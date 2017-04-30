@@ -44,7 +44,20 @@ struct TourComputation {
     }
     
     func chooseNextStep(outof nextSteps: [Position]) -> Position? {
-        return nextSteps.last
+        if nextSteps.isEmpty {
+            return nil
+        }
+        
+        var minCount = 8
+        var result = nextSteps.first!
+        for position in nextSteps {
+            let count = self.board.nextStepsWithinTheBoard(from: position).filter { !visited.contains($0) }.count
+            if count < minCount {
+                minCount = count
+                result = position
+            }
+        }
+        return result
     }
 
     mutating func compute() -> [Position] {
