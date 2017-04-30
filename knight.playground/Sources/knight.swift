@@ -27,6 +27,60 @@ public struct Position: Hashable, Equatable, CustomStringConvertible {
     }
 }
 
+class TourComputation {
+    private struct Move {
+        var position: Position
+        var availableNextSteps: [Position]
+    }
+
+    weak var board: Board!
+    var visited: Set<Position> = []
+    private var path: [Move] = []
+    
+    init(start position: Position, board: Board) {
+        self.board = board
+        visited.insert(position)
+        path.append(Move(position: position, availableNextSteps: board.nextStepsWithinTheBoard(from: position)))
+    }
+    
+    func chooseNextStep(outof nextSteps: [Position]) -> Position? {
+        return nextSteps.last
+    }
+
+    func compute() -> [Position] {
+        //if path.count == boardSize - awesome we have stepped at each cell once
+        while path.count != self.board.boardSize && !path.isEmpty {
+            let currentMove = path.popLast()! //we know that path is not empty
+            let currentPosition = currentMove.position
+            var nextSteps = currentMove.availableNextSteps
+            
+            guard let nextPosition = chooseNextStep(outof: nextSteps) else { // no available next steps
+                visited.remove(currentPosition)
+                //print("backtracking")
+                continue
+            }
+
+            nextSteps = nextSteps.filter { $0 != nextPosition } //remove chosen from nextSteps
+
+            //have to modify last move's next moves to not repeat
+            let modifiedLastMove = Move(position: currentPosition, availableNextSteps: nextSteps)
+            path.append(modifiedLastMove)
+            
+            makeNextMove(to: nextPosition)
+        }
+        
+        return path.map { $0.position }
+    }
+    
+    func makeNextMove(to nextPosition: Position) {
+        //making the next move
+        visited.insert(nextPosition)
+        let availableNextSteps = self.board.nextStepsWithinTheBoard(from: nextPosition).filter { !visited.contains($0) }
+        let nextMove = Move(position: nextPosition, availableNextSteps: availableNextSteps)
+        path.append(nextMove)
+    }
+}
+
 public class Board {
     var M: Int
     var N: Int
@@ -60,7 +114,7 @@ public class Board {
         return moves
     }
     
-    private func nextStepsWithinTheBoard(from c: Position) -> [Position] {
+    func nextStepsWithinTheBoard(from c: Position) -> [Position] {
         let moves = nextSteps(from: c).filter { self.isWithin(c: $0) }
         return moves
     }
@@ -71,36 +125,8 @@ public class Board {
     }
     
     public func getTour(from position: Position) -> [Position] {
-        var visited: Set<Position> = [position]
-        let nextSteps = nextStepsWithinTheBoard(from: position)
-        var path: [Move] = [Move(position: position, availableNextSteps: nextSteps)]
-        
-        //if path.count == boardSize - awesome we have stepped at each cell once
-        while path.count != boardSize && !path.isEmpty {
-            let currentMove = path.popLast()! //we know that path is not empty
-            let currentPosition = currentMove.position
-            var nextSteps = currentMove.availableNextSteps
-            
-            if nextSteps.isEmpty { // no available next moves
-                visited.remove(currentPosition)
-                //print("backtracking")
-                continue
-            }
-            
-            let nextPosition = nextSteps.popLast()! //we know nextMove is not empty
-            
-            //have to modify last move's next moves to not repeat
-            let modifiedLastMove = Move(position: currentPosition, availableNextSteps: nextSteps)
-            path.append(modifiedLastMove)
-            
-            //making the next move
-            visited.insert(nextPosition)
-            let availableNextSteps = nextStepsWithinTheBoard(from: nextPosition).filter { !visited.contains($0) }
-            let nextMove = Move(position: nextPosition, availableNextSteps: availableNextSteps)
-            path.append(nextMove)
-        }
-        
-        return path.map { $0.position }
+        let tourComputation = TourComputation(start: position, board: self)
+        return tourComputation.compute()
     }
 }
 
