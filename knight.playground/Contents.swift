@@ -1,5 +1,5 @@
-let M = 4
-let N = 3
+let M = 8
+let N = 8
 
 let board = Board(lines: M, columns: N)
 
