@@ -3,8 +3,8 @@ let N = 3
 
 let board = Board(lines: M, columns: N)
 
-let path = board.path(from: Position(x: 0, y: 0))
+let path = board.getTour(from: Position(x: 0, y: 0))
 
-print("Path: \(path)")
+print("Tour: \(path)")
 
 output(path: path, lines: M, columns: N)

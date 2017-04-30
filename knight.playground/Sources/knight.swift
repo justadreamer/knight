@@ -11,7 +11,7 @@ public struct Position: Hashable, Equatable, CustomStringConvertible {
         self.y = y
     }
 
-    //TODO: better more universal hash? 
+    //TODO: better more universal hash?
     public var hashValue: Int {
         return x * 200 + y
     }
@@ -70,7 +70,7 @@ public class Board {
         var availableNextSteps: [Position]
     }
     
-    public func path(from position: Position) -> [Position] {
+    public func getTour(from position: Position) -> [Position] {
         var visited: Set<Position> = [position]
         let nextSteps = nextStepsWithinTheBoard(from: position)
         var path: [Move] = [Move(position: position, availableNextSteps: nextSteps)]
